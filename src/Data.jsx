@@ -150,13 +150,13 @@ export const data = {
     renderBoolean: (value) =>
       value ? (
         <IoCheckmarkOutline
-          cssClasses={"!text-green-400"}
+          className={"!text-green-400"}
           width={"30px"}
           height={"30px"}
         />
       ) : (
         <IoCloseOutline
-          cssClasses={"!text-red-400"}
+          className={"!text-red-400"}
           width={"30px"}
           height={"30px"}
         />

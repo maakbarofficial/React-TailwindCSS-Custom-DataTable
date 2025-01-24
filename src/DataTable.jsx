@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from "react";
 import * as XLSX from "xlsx";
 import {
-    IoCaretDownOutline as CaretDownOutline,
-    IoCaretUpOutline as CaretUpOutline,
-    IoChevronBackOutline as ChevronBackOutline,
-    IoChevronForwardOutline as ChevronForwardOutline,
-    IoDownloadOutline as DownloadOutline,
-    IoSearchOutline as SearchOutline,
-    IoTrashOutline as TrashOutline,
+    IoCaretDownOutline,
+    IoCaretUpOutline,
+    IoChevronBackOutline,
+    IoChevronForwardOutline,
+    IoDownloadOutline,
+    IoSearchOutline,
+    IoTrashOutline,
 } from "react-icons/io5";
 
 const DataTable = ({
@@ -135,21 +135,7 @@ const DataTable = ({
                         </label>
                         <div className="relative">
                             <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg
-                                    className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                    aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 20 20"
-                                >
-                                    <path
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                                    />
-                                </svg>
+                                <IoSearchOutline />
                             </div>
                             <input
                                 value={searchTerm}
@@ -173,7 +159,7 @@ const DataTable = ({
                             onClick={exportToExcel}
                             className="rounded-lg bg-[#303030] p-2"
                         >
-                            <DownloadOutline
+                            <IoDownloadOutline
                                 width={"26px"}
                                 height={"26px"}
                                 className={"!text-[#99e5be] cursor-pointer"}
@@ -186,7 +172,7 @@ const DataTable = ({
                             disabled={selectedRows.length === 0}
                             className="rounded-lg bg-[#303030] p-2 disabled:opacity-50"
                         >
-                            <TrashOutline
+                            <IoTrashOutline
                                 width={"26px"}
                                 height={"26px"}
                                 className={`${selectedRows.length === 0
@@ -198,31 +184,32 @@ const DataTable = ({
                     )}
                 </div>
             </div>
-            <div className="table-container">
-                <table className="w-full overflow-x-auto max-w-[100vw]">
-                    <thead>
-                        <tr className="bg-[#303030] h-[50px]">
-                            <th className="hidden">Actions</th>
+            <div className="relative overflow-x-auto">
+                <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    <thead className="text-gray-700 Capatalize bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th className="hidden px-6 py-3" scope="col">Actions</th>
                             {/* Index Column (Can be used for Testing) */}
                             {/* <th className="font-medium text-gray-300 text-[16px] pl-5">#</th> */}
                             {columns.map((column, index) => (
                                 <th
                                     key={index}
                                     onClick={() => handleSort(column)}
-                                    className="font-medium text-gray-300 text-[16px] px-5 cursor-pointer"
+                                    scope="col"
+                                    className="shadow-inner font-bold text-sm px-6 py-3 cursor-pointer"
                                 >
                                     <div className="flex items-center justify-center gap-[1px]">
                                         {column}
                                         {sortConfig?.key === column ? (
                                             sortConfig.direction === "asc" ? (
-                                                <CaretUpOutline className={"!fill-blue-400"} />
+                                                <IoCaretUpOutline color="black" />
                                             ) : sortConfig.direction === "desc" ? (
-                                                <CaretDownOutline className={"!fill-blue-400"} />
+                                                <IoCaretDownOutline color="black" />
                                             ) : (
-                                                <CaretUpOutline className={"hidden"} />
+                                                <IoCaretUpOutline className="hidden" />
                                             )
                                         ) : (
-                                            <CaretUpOutline className={"hidden"} />
+                                            <IoCaretUpOutline className="hidden" />
                                         )}
                                     </div>
                                 </th>
@@ -233,11 +220,11 @@ const DataTable = ({
                         {paginatedRows.map((row, rowIndex) => (
                             <tr
                                 key={rowIndex}
-                                className={`h-[50px] cursor-pointer ${selectedRows.includes(String(rowIndex))
-                                    ? "bg-[#4d4d4d]"
+                                className={`bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 ${selectedRows.includes(String(rowIndex))
+                                    ? "bg-yellow-100 dark:bg-yellow-900"
                                     : rowIndex % 2
-                                        ? "bg-[#242424]"
-                                        : "bg-[#1f1f1f]"
+                                        ? "" // For even rows
+                                        : "" // For odd rows
                                     }`}
                             >
                                 <td className="hidden">
@@ -267,7 +254,7 @@ const DataTable = ({
                                             className={`${classNames}`}
                                             onClick={() => handleRowSelect(rowIndex)}
                                         >
-                                            <div className="flex items-center justify-center whitespace-nowrap px-5">
+                                            <div className="px-3 py-2 text-gray-900 text-sm dark:text-white">
                                                 {content
                                                     ? content
                                                     : columnData.renderBoolean
@@ -305,9 +292,9 @@ const DataTable = ({
                         <button
                             onClick={() => setCurrentPage(currentPage - 1)}
                             disabled={currentPage === 0}
-                            className="rounded-lg bg-gray-200 dark:bg-gray-800 p-2 disabled:opacity-50"
+                            className="rounded-lg bg-gray-300 dark:bg-gray-800 p-2 disabled:opacity-50 cursor-pointer"
                         >
-                            <ChevronBackOutline className="text-black dark:text-white font-bold" />
+                            <IoChevronBackOutline className="text-black dark:text-white font-bold" />
                         </button>
                         <span className="text-base dark:text-white">
                             Page {currentPage + 1} of {totalPages}
@@ -315,9 +302,9 @@ const DataTable = ({
                         <button
                             onClick={() => setCurrentPage(currentPage + 1)}
                             disabled={currentPage + 1 === totalPages}
-                            className="rounded-lg bg-gray-200 dark:bg-gray-800 p-2 disabled:opacity-50"
+                            className="rounded-lg bg-gray-300 dark:bg-gray-800 p-2 disabled:opacity-50 cursor-pointer"
                         >
-                            <ChevronForwardOutline className="text-black dark:text-white font-bold" />
+                            <IoChevronForwardOutline className="text-black dark:text-white font-bold" />
                         </button>
                     </div>
                 )}
