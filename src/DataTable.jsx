@@ -203,7 +203,8 @@ const DataTable = ({
                     <thead>
                         <tr className="bg-[#303030] h-[50px]">
                             <th className="hidden">Actions</th>
-                            <th className="font-medium text-gray-300 text-[16px] pl-5">#</th>
+                            {/* Index Column (Can be used for Testing) */}
+                            {/* <th className="font-medium text-gray-300 text-[16px] pl-5">#</th> */}
                             {columns.map((column, index) => (
                                 <th
                                     key={index}
