@@ -282,11 +282,11 @@ const DataTable = ({
             </div>
             <div className="w-full mt-5 flex items-center justify-between">
                 {pageSizeControl ? (
-                    <div className="rounded-lg py-[2px] pr-1 bg-[#303030] w-fit text-gray-400">
+                    <div>
                         <select
                             value={pageSize}
                             onChange={(e) => setPageSize(Number(e.target.value))}
-                            className="bg-transparent outline-none w-[80px] px-1"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         >
                             <option value={5}>5</option>
                             <option value={10}>10</option>
@@ -303,19 +303,19 @@ const DataTable = ({
                         <button
                             onClick={() => setCurrentPage(currentPage - 1)}
                             disabled={currentPage === 0}
-                            className="rounded-lg bg-[#303030] p-2 disabled:opacity-50"
+                            className="rounded-lg bg-gray-200 dark:bg-gray-800 p-2 disabled:opacity-50"
                         >
-                            <ChevronBackOutline className={"!text-gray-500"} />
+                            <ChevronBackOutline className="text-black dark:text-white font-bold" />
                         </button>
-                        <span className="text-sm">
+                        <span className="text-base dark:text-white">
                             Page {currentPage + 1} of {totalPages}
                         </span>
                         <button
                             onClick={() => setCurrentPage(currentPage + 1)}
                             disabled={currentPage + 1 === totalPages}
-                            className="rounded-lg bg-[#303030] p-2 disabled:opacity-50"
+                            className="rounded-lg bg-gray-200 dark:bg-gray-800 p-2 disabled:opacity-50"
                         >
-                            <ChevronForwardOutline className={"!text-gray-500"} />
+                            <ChevronForwardOutline className="text-black dark:text-white font-bold" />
                         </button>
                     </div>
                 )}
