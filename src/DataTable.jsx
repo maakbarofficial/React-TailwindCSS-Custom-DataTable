@@ -247,7 +247,7 @@ const DataTable = ({
                                         onChange={() => handleRowSelect(rowIndex)}
                                     />
                                 </td>
-                                <td className="pl-5">{rowIndex + 1}</td>
+                                {/* <td className="pl-5">{rowIndex + 1}</td> */}
                                 {columns.map((column, index) => {
                                     const value = row[column];
                                     const columnData = data[column];
