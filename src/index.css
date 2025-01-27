@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+table {
+  scrollbar-width: thin;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 5px;
