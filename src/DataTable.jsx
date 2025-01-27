@@ -96,6 +96,26 @@ const DataTable = ({
         setSortConfig({ key: accessor, direction });
     };
 
+    const handleCopyRows = () => {
+        // Use sortedRows instead of rows
+        const rowsToCopy = selectedRows.length === 0 ? sortedRows : selectedRows.map(rowIndex => sortedRows[parseInt(rowIndex, 10)]);
+
+        // Convert rows to a format suitable for copying, excluding hidden columns
+        const textToCopy = rowsToCopy.map(row => {
+            return columns
+                .filter(column => columnVisibility[column]) // Only include visible columns
+                .map(column => row[column]) // Get the value for each visible column
+                .join("\t"); // Join values with tab for better formatting
+        }).join("\n"); // Join rows with newline
+
+        // Copy to clipboard
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            console.log("Copied to clipboard");
+        }).catch(err => {
+            console.error("Failed to copy: ", err);
+        });
+    };
+
     const exportToExcel = () => {
         const exportData = rows.map((row) => {
             const exportRow = {};
@@ -264,7 +284,7 @@ const DataTable = ({
                     )}
                     {copyRows && (
                         <button
-                            onClick={() => console.log("Copied", selectedRows)}
+                            onClick={handleCopyRows}
                             className="cursor-pointer flex justify-center items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                         >
                             Copy
