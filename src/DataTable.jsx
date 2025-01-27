@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import * as XLSX from "xlsx";
 import {
     IoCaretDownOutline,
@@ -9,23 +9,75 @@ import {
     IoSearchOutline,
     IoTrashOutline,
 } from "react-icons/io5";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { TbFileExport } from "react-icons/tb";
+import { IoMdCopy } from "react-icons/io";
 
 const DataTable = ({
     data,
     searchBar = false,
     excelExport = false,
+    pdfExport = true,
+    csvExport = true,
     pagination = false,
     removableRows = false,
     pageSizeControl = false,
+    removableColumns = false,
+    copyRows = true,
 }) => {
     const columns = Object.keys(data);
-    const rowCount = Math.max(...columns.map((column) => data[column].values.length));
+    const rowCount = Math.max(
+        ...columns.map((column) => data[column].values.length)
+    );
+
+    const removableColumnsDropdownRef = useRef(null);
 
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(0);
     const [sortConfig, setSortConfig] = useState(null);
     const [pageSize, setPageSize] = useState(10);
     const [selectedRows, setSelectedRows] = useState([]);
+    const [selectedColumns, setSelectedColumns] = useState([]);
+    const [isRemovableColumnsDropdownOpen, setIsRemovableColumnsDropdownOpen] =
+        useState(false);
+
+    const [columnVisibility, setColumnVisibility] = useState(
+        columns.reduce((acc, column) => {
+            acc[column] = true; // All columns are visible by default
+            return acc;
+        }, {})
+    );
+
+    const handleColumnVisibilityChange = (column) => {
+        setColumnVisibility((prev) => ({
+            ...prev,
+            [column]: !prev[column], // Toggle the visibility
+        }));
+    };
+
+    const handleClickOutsideRemovableColumnsDropdown = (event) => {
+        if (
+            removableColumnsDropdownRef.current &&
+            !removableColumnsDropdownRef.current.contains(event.target)
+        ) {
+            setIsRemovableColumnsDropdownOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        console.log("useEffect", columns);
+
+        document.addEventListener(
+            "mousedown",
+            handleClickOutsideRemovableColumnsDropdown
+        );
+        return () => {
+            document.removeEventListener(
+                "mousedown",
+                handleClickOutsideRemovableColumnsDropdown
+            );
+        };
+    }, []);
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
@@ -148,36 +200,115 @@ const DataTable = ({
                             />
                         </div>
                     </div>
-
                 ) : (
                     <div></div>
                 )}
 
                 <div className="flex items-center gap-5">
+                    {removableColumns && (
+                        <div
+                            className="relative inline-block"
+                            ref={removableColumnsDropdownRef}
+                        >
+                            <button
+                                onClick={() =>
+                                    setIsRemovableColumnsDropdownOpen(
+                                        !isRemovableColumnsDropdownOpen
+                                    )
+                                }
+                                className="cursor-pointer text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                type="button"
+                            >
+                                Columns Control
+                                <div className="w-2.5 h-2.5 ms-3">
+                                    {isRemovableColumnsDropdownOpen ? (
+                                        <FaChevronUp size={10} />
+                                    ) : (
+                                        <FaChevronDown size={10} />
+                                    )}
+                                </div>
+                            </button>
+
+                            {/* Dropdown menu */}
+                            {isRemovableColumnsDropdownOpen && (
+                                <div
+                                    className="absolute z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-700 dark:divide-gray-600 w-max"
+                                    style={{ top: "100%", left: 0 }}
+                                >
+                                    <ul className="p-3 space-y-1 text-xs text-gray-700 dark:text-gray-200 grid grid-cols-2 gap-x-4">
+                                        {columns.map((column, index) => (
+                                            <li key={index}>
+                                                <div className="flex p-2 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+                                                    <div className="flex items-center h-5">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={columnVisibility[column]}
+                                                            onChange={() =>
+                                                                handleColumnVisibilityChange(column)
+                                                            }
+                                                            className="cursor-pointer w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                                                        />
+                                                    </div>
+                                                    <div className="ms-2 text-xs">
+                                                        <label className="font-medium text-gray-900 dark:text-gray-300">
+                                                            <div>{column}</div>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    {copyRows && (
+                        <button
+                            onClick={() => console.log("Copied", selectedRows)}
+                            className="cursor-pointer flex justify-center items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                        >
+                            Copy
+                            <IoMdCopy />
+                        </button>
+                    )}
                     {excelExport && (
                         <button
                             onClick={exportToExcel}
-                            className="rounded-lg bg-[#303030] p-2"
+                            className="cursor-pointer flex justify-center items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                         >
-                            <IoDownloadOutline
-                                width={"26px"}
-                                height={"26px"}
-                                className={"!text-[#99e5be] cursor-pointer"}
-                            />
+                            XLSX
+                            <TbFileExport />
+                        </button>
+                    )}
+                    {pdfExport && (
+                        <button
+                            onClick={() => console.log("Export to PDF")}
+                            className="cursor-pointer flex justify-center items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                        >
+                            PDF
+                            <TbFileExport />
+                        </button>
+                    )}
+                    {csvExport && (
+                        <button
+                            onClick={() => console.log("Export to CSV")}
+                            className="cursor-pointer flex justify-center items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                        >
+                            CSV
+                            <TbFileExport />
                         </button>
                     )}
                     {removableRows && (
                         <button
                             onClick={handleDeleteSelectedRows}
                             disabled={selectedRows.length === 0}
-                            className="rounded-lg bg-[#303030] p-2 disabled:opacity-50"
+                            className="cursor-pointer flex justify-center items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                         >
+                            Delete
                             <IoTrashOutline
-                                width={"26px"}
-                                height={"26px"}
                                 className={`${selectedRows.length === 0
-                                    ? "cursor-default !text-red-300"
-                                    : "cursor-pointer !text-red-400"
+                                    ? "cursor-default"
+                                    : "cursor-pointer text-red-200"
                                     }`}
                             />
                         </button>
@@ -188,32 +319,37 @@ const DataTable = ({
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead className="text-gray-700 Capatalize bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th className="hidden px-6 py-3" scope="col">Actions</th>
+                            <th className="hidden px-6 py-3" scope="col">
+                                Actions
+                            </th>
                             {/* Index Column (Can be used for Testing) */}
                             {/* <th className="font-medium text-gray-300 text-[16px] pl-5">#</th> */}
-                            {columns.map((column, index) => (
-                                <th
-                                    key={index}
-                                    onClick={() => handleSort(column)}
-                                    scope="col"
-                                    className="shadow-inner font-bold text-sm px-6 py-3 cursor-pointer"
-                                >
-                                    <div className="flex items-center justify-center gap-[1px]">
-                                        {column}
-                                        {sortConfig?.key === column ? (
-                                            sortConfig.direction === "asc" ? (
-                                                <IoCaretUpOutline color="black" />
-                                            ) : sortConfig.direction === "desc" ? (
-                                                <IoCaretDownOutline color="black" />
-                                            ) : (
-                                                <IoCaretUpOutline className="hidden" />
-                                            )
-                                        ) : (
-                                            <IoCaretUpOutline className="hidden" />
-                                        )}
-                                    </div>
-                                </th>
-                            ))}
+                            {columns.map(
+                                (column, index) =>
+                                    columnVisibility[column] && (
+                                        <th
+                                            key={index}
+                                            onClick={() => handleSort(column)}
+                                            scope="col"
+                                            className="shadow-inner font-bold text-sm px-6 py-3 cursor-pointer"
+                                        >
+                                            <div className="flex items-center justify-center gap-[1px]">
+                                                {column}
+                                                {sortConfig?.key === column ? (
+                                                    sortConfig.direction === "asc" ? (
+                                                        <IoCaretUpOutline color="black" />
+                                                    ) : sortConfig.direction === "desc" ? (
+                                                        <IoCaretDownOutline color="black" />
+                                                    ) : (
+                                                        <IoCaretUpOutline className="hidden" />
+                                                    )
+                                                ) : (
+                                                    <IoCaretUpOutline className="hidden" />
+                                                )}
+                                            </div>
+                                        </th>
+                                    )
+                            )}
                         </tr>
                     </thead>
                     <tbody className="text-center">
@@ -249,19 +385,21 @@ const DataTable = ({
                                             : `${value}`;
 
                                     return (
-                                        <td
-                                            key={index}
-                                            className={`${classNames}`}
-                                            onClick={() => handleRowSelect(rowIndex)}
-                                        >
-                                            <div className="px-3 py-2 text-gray-900 text-sm dark:text-white">
-                                                {content
-                                                    ? content
-                                                    : columnData.renderBoolean
-                                                        ? columnData.renderBoolean(value)
-                                                        : "false"}
-                                            </div>
-                                        </td>
+                                        columnVisibility[column] && (
+                                            <td
+                                                key={index}
+                                                className={`${classNames}`}
+                                                onClick={() => handleRowSelect(rowIndex)}
+                                            >
+                                                <div className="px-3 py-2 text-gray-900 text-sm dark:text-white">
+                                                    {content
+                                                        ? content
+                                                        : columnData.renderBoolean
+                                                            ? columnData.renderBoolean(value)
+                                                            : "false"}
+                                                </div>
+                                            </td>
+                                        )
                                     );
                                 })}
                             </tr>

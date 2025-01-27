@@ -19,7 +19,7 @@ function App() {
         <h1>React Tailwind CSS Custom DataTable</h1>
       </div>
       <div className="p-5">
-        <DataTable data={data} searchBar={true} pagination={true} removableRows={true} excelExport={true} pageSizeControl={true} />
+        <DataTable data={data} removableColumns={true} searchBar={true} pagination={true} removableRows={true} excelExport={true} pageSizeControl={true} />
       </div>
     </div>
   )
