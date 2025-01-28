@@ -142,6 +142,38 @@ const DataTable = ({
         XLSX.writeFile(workbook, "data.xlsx");
     };
 
+    const exportToCSV = () => {
+        // Determine which rows to export
+        const rowsToExport = selectedRows.length > 0
+            ? selectedRows.map(rowIndex => sortedRows[parseInt(rowIndex, 10)])
+            : sortedRows;
+
+        // Determine which columns to export (only visible columns)
+        const visibleColumns = columns.filter(column => columnVisibility[column]);
+
+        // Prepare the data for export
+        const exportData = rowsToExport.map((row) => {
+            const exportRow = {};
+            visibleColumns.forEach((column) => {
+                exportRow[column] = row[column] || ""; // Use empty string for empty values
+            });
+            return exportRow;
+        });
+
+        // Convert the data to CSV format
+        const csvContent = [
+            visibleColumns.join(","), // Header row
+            ...exportData.map(row => visibleColumns.map(column => row[column]).join(",")) // Data rows
+        ].join("\n");
+
+        // Create a Blob and trigger a download
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "data.csv";
+        link.click();
+    };
+
     const handleRowSelect = (rowIndex) => {
         const selectedRowIndex = selectedRows.indexOf(String(rowIndex));
         if (selectedRowIndex === -1) {
@@ -318,7 +350,7 @@ const DataTable = ({
                     )}
                     {csvExport && (
                         <button
-                            onClick={() => console.log("Export to CSV")}
+                            onClick={exportToCSV}
                             className="cursor-pointer flex justify-center items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                         >
                             CSV
