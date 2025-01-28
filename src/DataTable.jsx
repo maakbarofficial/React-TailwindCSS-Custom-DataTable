@@ -12,6 +12,7 @@ import {
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { TbFileExport } from "react-icons/tb";
 import { IoMdCopy } from "react-icons/io";
+import toast from "react-hot-toast";
 
 const DataTable = ({
     data,
@@ -65,8 +66,6 @@ const DataTable = ({
     };
 
     useEffect(() => {
-        console.log("useEffect", columns);
-
         document.addEventListener(
             "mousedown",
             handleClickOutsideRemovableColumnsDropdown
@@ -110,28 +109,36 @@ const DataTable = ({
 
         // Copy to clipboard
         navigator.clipboard.writeText(textToCopy).then(() => {
-            console.log("Copied to clipboard");
+            toast.success("Copied to clipboard");
         }).catch(err => {
-            console.error("Failed to copy: ", err);
+            toast.error("Failed to copy: ", err);
         });
     };
 
     const exportToExcel = () => {
-        const exportData = rows.map((row) => {
+        // Determine which rows to export
+        const rowsToExport = selectedRows.length > 0
+            ? selectedRows.map(rowIndex => sortedRows[parseInt(rowIndex, 10)])
+            : sortedRows;
+
+        // Determine which columns to export (only visible columns)
+        const visibleColumns = columns.filter(column => columnVisibility[column]);
+
+        // Prepare the data for export
+        const exportData = rowsToExport.map((row) => {
             const exportRow = {};
-            columns.forEach((column) => {
-                if (row[column]) {
-                    exportRow[column] = row[column];
-                } else {
-                    exportRow[column] = "FALSE";
-                }
+            visibleColumns.forEach((column) => {
+                exportRow[column] = row[column] || "FALSE"; // Use "FALSE" for empty values
             });
             return exportRow;
         });
 
+        // Create a worksheet and workbook
         const worksheet = XLSX.utils.json_to_sheet(exportData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+        // Export the file
         XLSX.writeFile(workbook, "data.xlsx");
     };
 
