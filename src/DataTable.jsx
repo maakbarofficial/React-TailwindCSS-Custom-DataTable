@@ -308,6 +308,12 @@ const DataTable = ({
                 event.preventDefault(); // Prevent the default behavior (e.g., selecting all text on the page)
                 selectAllRows();
             }
+
+            // Check if the key combination is Ctrl + C (Windows/Linux) or Cmd + C (Mac)
+            if ((isMac && event.metaKey && event.key === 'c') || (!isMac && event.ctrlKey && event.key === 'c')) {
+                event.preventDefault(); // Prevent the default behavior (e.g., copying selected text)
+                handleCopyRows();
+            }
         };
 
         // Add the event listener
@@ -317,8 +323,7 @@ const DataTable = ({
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isMac, filteredRows]); // Re-run the effect if `isMac` or `filteredRows` changes
-
+    }, [isMac, filteredRows, selectedRows, sortedRows]); // Re-run the effect if `isMac`, `filteredRows`, `selectedRows`, or `sortedRows` changes
     return (
         <div className="max-w-full overflow-x-auto py-5">
             <div className="flex w-full items-center justify-between mb-5">
