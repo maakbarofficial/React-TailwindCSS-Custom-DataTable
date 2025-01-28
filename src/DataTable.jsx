@@ -44,6 +44,13 @@ const DataTable = ({
     const [isRemovableColumnsDropdownOpen, setIsRemovableColumnsDropdownOpen] =
         useState(false);
 
+    const isMac = /Mac/i.test(navigator.userAgent);
+
+    const selectAllRows = () => {
+        const allRowIndices = filteredRows.map((_, index) => String(index));
+        setSelectedRows(allRowIndices);
+    };
+
     const [columnVisibility, setColumnVisibility] = useState(
         columns.reduce((acc, column) => {
             acc[column] = true; // All columns are visible by default
@@ -292,6 +299,25 @@ const DataTable = ({
     }, [filteredRows, currentPage, pageSize]);
 
     const totalPages = Math.ceil(filteredRows.length / pageSize);
+
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            // Check if the key combination is Ctrl + A (Windows/Linux) or Cmd + A (Mac)
+            if ((isMac && event.metaKey && event.key === 'a') || (!isMac && event.ctrlKey && event.key === 'a')) {
+                event.preventDefault(); // Prevent the default behavior (e.g., selecting all text on the page)
+                selectAllRows();
+            }
+        };
+
+        // Add the event listener
+        document.addEventListener('keydown', handleKeyDown);
+
+        // Clean up the event listener
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isMac, filteredRows]); // Re-run the effect if `isMac` or `filteredRows` changes
 
     return (
         <div className="max-w-full overflow-x-auto py-5">
