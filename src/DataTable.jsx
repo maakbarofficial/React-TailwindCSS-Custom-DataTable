@@ -13,6 +13,8 @@ import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { TbFileExport } from "react-icons/tb";
 import { IoMdCopy } from "react-icons/io";
 import toast from "react-hot-toast";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const DataTable = ({
     data,
@@ -172,6 +174,64 @@ const DataTable = ({
         link.href = URL.createObjectURL(blob);
         link.download = "data.csv";
         link.click();
+    };
+
+    const exportToPDF = () => {
+        // Determine which rows to export
+        const rowsToExport = selectedRows.length > 0
+            ? selectedRows.map(rowIndex => sortedRows[parseInt(rowIndex, 10)])
+            : sortedRows;
+
+        // Determine which columns to export (only visible columns)
+        const visibleColumns = columns.filter(column => columnVisibility[column]);
+
+        // Prepare the data for export
+        const exportData = rowsToExport.map((row) => {
+            return visibleColumns.map(column => row[column] || ""); // Use empty string for empty values
+        });
+
+        // Create a new PDF document
+        const doc = new jsPDF({
+            orientation: 'landscape', // Set to landscape if the table is too wide
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        // Add a title to the PDF
+        doc.setFontSize(18);
+        doc.text("Data Table Export", 14, 15);
+
+        // Generate the table using jspdf-autotable
+        doc.autoTable({
+            head: [visibleColumns], // Header row
+            body: exportData, // Data rows
+            startY: 20, // Start position below the title
+            margin: { top: 20, right: 10, bottom: 10, left: 10 }, // Set margins
+            styles: {
+                fontSize: 6, // Set font size
+                cellPadding: 2, // Set cell padding
+                overflow: 'linebreak', // Handle overflow
+                valign: 'middle', // Vertical alignment
+                halign: 'center', // Horizontal alignment
+            },
+            headStyles: {
+                fillColor: [41, 128, 185], // Header background color
+                textColor: [255, 255, 255], // Header text color
+                fontStyle: 'bold', // Header font style
+            },
+            bodyStyles: {
+                fillColor: [245, 245, 245], // Body background color
+                textColor: [0, 0, 0], // Body text color
+            },
+            columnStyles: {
+                0: { cellWidth: 'auto' }, // Adjust column widths as needed
+                1: { cellWidth: 'auto' },
+                // Add more columns as needed
+            },
+        });
+
+        // Save the PDF
+        doc.save("data.pdf");
     };
 
     const handleRowSelect = (rowIndex) => {
@@ -341,11 +401,11 @@ const DataTable = ({
                     )}
                     {pdfExport && (
                         <button
-                            onClick={() => console.log("Export to PDF")}
+                            onClick={exportToPDF}
                             className="cursor-pointer flex justify-center items-center gap-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                         >
                             PDF
-                            <TbFileExport />
+                            <IoDownloadOutline />
                         </button>
                     )}
                     {csvExport && (
