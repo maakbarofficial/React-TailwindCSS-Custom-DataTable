@@ -382,21 +382,19 @@ const DataTable = ({
                             {/* Dropdown menu */}
                             {isRemovableColumnsDropdownOpen && (
                                 <div
-                                    className="absolute z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-700 dark:divide-gray-600 w-max"
-                                    style={{ top: "100%", left: 0 }}
-                                >
+                                    className="absolute top-[100%] left-0 z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-700 dark:divide-gray-600 w-max">
                                     <ul className="p-3 space-y-1 text-xs text-gray-700 dark:text-gray-200 grid grid-cols-2 gap-x-4">
                                         {columns.map((column, index) => (
                                             <li key={index}>
                                                 <div className="flex p-2 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
-                                                    <div className="flex items-center h-5">
+                                                    <div className="flex items-center justify-center">
                                                         <input
                                                             type="checkbox"
                                                             checked={columnVisibility[column]}
                                                             onChange={() =>
                                                                 handleColumnVisibilityChange(column)
                                                             }
-                                                            className="cursor-pointer w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                                                            className="cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                                                         />
                                                     </div>
                                                     <div className="ms-2 text-xs">
