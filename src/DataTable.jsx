@@ -326,7 +326,7 @@ const DataTable = ({
     }, [isMac, filteredRows, selectedRows, sortedRows]); // Re-run the effect if `isMac`, `filteredRows`, `selectedRows`, or `sortedRows` changes
     return (
         <div className="max-w-full overflow-x-auto py-5">
-            <div className="flex w-full items-center justify-between mb-5">
+            <div className="flex flex-col lg:flex-row w-full items-center justify-between mb-5 gap-5 lg:gap-0">
                 {searchBar ? (
                     <div className="max-w-sm">
                         <label
@@ -353,8 +353,7 @@ const DataTable = ({
                 ) : (
                     <div></div>
                 )}
-
-                <div className="flex items-center gap-5">
+                <div className="flex flex-col lg:flex-row items-center gap-5">
                     {removableColumns && (
                         <div
                             className="relative inline-block"
@@ -501,57 +500,63 @@ const DataTable = ({
                         </tr>
                     </thead>
                     <tbody className="text-center">
-                        {paginatedRows.map((row, rowIndex) => (
-                            <tr
-                                key={rowIndex}
-                                className={`bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 ${selectedRows.includes(String(rowIndex))
-                                    ? "bg-yellow-100 dark:bg-yellow-900"
-                                    : rowIndex % 2
-                                        ? "" // For even rows
-                                        : "" // For odd rows
-                                    }`}
-                            >
-                                <td className="hidden">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedRows.includes(String(rowIndex))}
-                                        onChange={() => handleRowSelect(rowIndex)}
-                                    />
+                        {filteredRows.length === 0 ? (
+                            <tr>
+                                <td colSpan={columns.length} className="py-10 text-gray-500">
+                                    No data found
                                 </td>
-                                {/* Index Column (Can be used for Testing) */}
-                                {/* <td className="pl-5">{rowIndex + 1}</td> */}
-                                {columns.map((column, index) => {
-                                    const value = row[column];
-                                    const columnData = data[column];
-                                    const classNames = columnData.classNames
-                                        ? columnData.classNames(value)
-                                        : {};
-                                    const content = columnData.renderValue
-                                        ? columnData.renderValue(value)
-                                        : typeof value === "boolean" && columnData.renderBoolean
-                                            ? columnData.renderBoolean(value)
-                                            : `${value}`;
-
-                                    return (
-                                        columnVisibility[column] && (
-                                            <td
-                                                key={index}
-                                                className={`${classNames}`}
-                                                onClick={() => handleRowSelect(rowIndex)}
-                                            >
-                                                <div className="px-3 py-2 text-gray-900 text-sm dark:text-white">
-                                                    {content
-                                                        ? content
-                                                        : columnData.renderBoolean
-                                                            ? columnData.renderBoolean(value)
-                                                            : "false"}
-                                                </div>
-                                            </td>
-                                        )
-                                    );
-                                })}
                             </tr>
-                        ))}
+                        ) : (
+                            paginatedRows.map((row, rowIndex) => (
+                                <tr
+                                    key={rowIndex}
+                                    className={`bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 ${selectedRows.includes(String(rowIndex))
+                                        ? "bg-yellow-100 dark:bg-yellow-900"
+                                        : rowIndex % 2
+                                            ? "" // For even rows
+                                            : "" // For odd rows
+                                        }`}
+                                >
+                                    <td className="hidden">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedRows.includes(String(rowIndex))}
+                                            onChange={() => handleRowSelect(rowIndex)}
+                                        />
+                                    </td>
+                                    {columns.map((column, index) => {
+                                        const value = row[column];
+                                        const columnData = data[column];
+                                        const classNames = columnData.classNames
+                                            ? columnData.classNames(value)
+                                            : {};
+                                        const content = columnData.renderValue
+                                            ? columnData.renderValue(value)
+                                            : typeof value === "boolean" && columnData.renderBoolean
+                                                ? columnData.renderBoolean(value)
+                                                : `${value}`;
+
+                                        return (
+                                            columnVisibility[column] && (
+                                                <td
+                                                    key={index}
+                                                    className={`${classNames}`}
+                                                    onClick={() => handleRowSelect(rowIndex)}
+                                                >
+                                                    <div className="px-3 py-2 text-gray-900 text-sm dark:text-white">
+                                                        {content
+                                                            ? content
+                                                            : columnData.renderBoolean
+                                                                ? columnData.renderBoolean(value)
+                                                                : "false"}
+                                                    </div>
+                                                </td>
+                                            )
+                                        );
+                                    })}
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
